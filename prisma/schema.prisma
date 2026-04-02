@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Listing {
+  id            Int            @id @default(autoincrement())
+  externalId    String         @unique
+  title         String
+  location      String?
+  url           String?
+  createdAt     DateTime       @default(now())
+  priceHistory  PriceHistory[]
+}
+
+model PriceHistory {
+  id          Int      @id @default(autoincrement())
+  listingId   Int
+  price       Decimal  @db.Decimal(10, 2)
+  dateScraped DateTime @default(now())
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  
+  @@index([listingId])
+  @@index([dateScraped])
+}
